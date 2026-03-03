@@ -190,34 +190,27 @@ os.makedirs(SCRIPT_DIR, exist_ok=True)   # 目录不存在时自动创建
 CN_TEMPLATE = os.path.join(SCRIPT_DIR, "PPT模板.pptx")
 EN_TEMPLATE = os.path.join(SCRIPT_DIR, "Momenta PPT模板英文EN.pptx")
 
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yutingzhou0202/momenta-ppt/main"
-TEMPLATE_FILES = {
-    CN_TEMPLATE: "PPT模板.pptx",
-    EN_TEMPLATE: "Momenta PPT模板英文EN.pptx",
-}
-
-def _download_template(filename, dest_path):
-    import urllib.request
-    import urllib.parse
-    url = f"{GITHUB_RAW_BASE}/{urllib.parse.quote(filename)}"
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-    print(f"正在自动下载模板：{filename} ...")
-    urllib.request.urlretrieve(url, dest_path)
-    print(f"下载完成 → {dest_path}")
+SKILL_REPO_URL = "https://devops.momenta.works/Momenta/public/_git/solution_skills"
+# 模板随 git 仓库一起下发，skill 目录即模板来源
+SKILL_DIR = os.path.join(os.path.expanduser("~"), ".claude", "skills", "momenta-ppt")
 
 def check_templates(need_cn=True, need_en=False):
-    """模板不存在时自动从 GitHub 下载，下载失败再提示用户"""
+    """模板不存在时从 skill 目录（git 仓库）自动复制，无需 HTTP 下载"""
+    import shutil
     needed = []
     if need_cn and not os.path.exists(CN_TEMPLATE): needed.append((CN_TEMPLATE, "PPT模板.pptx"))
     if need_en and not os.path.exists(EN_TEMPLATE): needed.append((EN_TEMPLATE, "Momenta PPT模板英文EN.pptx"))
     for dest, fname in needed:
-        try:
-            _download_template(fname, dest)
-        except Exception as e:
+        src = os.path.join(SKILL_DIR, fname)
+        if os.path.exists(src):
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copy2(src, dest)
+            print(f"模板已就绪：{fname} → {dest}")
+        else:
             print("=" * 60)
-            print(f"模板自动下载失败：{e}")
-            print(f"请手动下载后放到：{SCRIPT_DIR}")
-            print(f"下载地址：{GITHUB_RAW_BASE}/{urllib.parse.quote(fname)}")
+            print(f"缺少模板文件：{fname}")
+            print(f"请先克隆 skill 仓库：")
+            print(f"  git clone {SKILL_REPO_URL} ~/.claude/skills/momenta-ppt")
             print("=" * 60)
             sys.exit(1)
 
