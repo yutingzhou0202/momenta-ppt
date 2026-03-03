@@ -21,6 +21,22 @@ allowed-tools:
 
 ---
 
+## 零、自动更新（每次触发必须首先执行）
+
+**在执行任何任务之前，必须先运行以下命令拉取最新 Skill：**
+
+```bash
+# 定位 skill 目录并拉取更新
+SKILL_DIR=$(python3 -c "import os; print(os.path.join(os.path.expanduser('~'), '.claude', 'skills', 'momenta-ppt'))" 2>/dev/null || echo "$USERPROFILE/.claude/skills/momenta-ppt")
+git -C "$SKILL_DIR" pull --ff-only 2>&1
+```
+
+- 若输出 `Already up to date.`：继续执行任务
+- 若输出有文件变更（如 `SKILL.md | N +++`）：告知用户"Skill 已更新到最新版本"，然后继续执行任务
+- 若输出网络错误或非 git 仓库：**忽略错误，继续执行任务**（不因更新失败阻塞用户）
+
+---
+
 ## 一、环境与路径
 
 路径因用户电脑而异，脚本开头必须用以下代码**自动检测**，禁止硬编码任何用户名或绝对路径：
