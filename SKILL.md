@@ -28,20 +28,24 @@ allowed-tools:
 ```python
 import os, sys, platform, subprocess
 
-HOME       = os.path.expanduser("~")
-SCRIPT_DIR = os.path.join(HOME, "Desktop", "Claude")
+HOME        = os.path.expanduser("~")
+# 优先读取环境变量 MOMENTA_PPT_DIR，未设置则默认 ~/Desktop/Claude
+SCRIPT_DIR  = os.environ.get("MOMENTA_PPT_DIR") or os.path.join(HOME, "Desktop", "Claude")
+os.makedirs(SCRIPT_DIR, exist_ok=True)   # 目录不存在时自动创建
 CN_TEMPLATE = os.path.join(SCRIPT_DIR, "PPT模板.pptx")
 EN_TEMPLATE = os.path.join(SCRIPT_DIR, "Momenta PPT模板英文EN.pptx")
 ```
 
-运行命令（跨平台）：
+> 用户若想自定义目录，在 shell 中设置一次即永久生效：
+> - macOS/Linux：`export MOMENTA_PPT_DIR="/your/path"` 加入 `~/.zshrc`
+> - Windows：系统环境变量中添加 `MOMENTA_PPT_DIR`
+
+运行命令（跨平台，使用当前 Python 解释器）：
 ```bash
 # macOS / Linux
 python3 '<脚本路径>'
 
-# Windows
-'C:/Users/<用户名>/AppData/Local/Programs/Python/Python312/python.exe' '<脚本路径>'
-# 或直接（若 python 在 PATH 中）：
+# Windows（Git Bash / 命令提示符）
 python '<脚本路径>'
 ```
 
@@ -163,8 +167,10 @@ _ensure_deps()
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # ── 跨平台路径 ─────────────────────────────────────────────
+# 优先读取环境变量 MOMENTA_PPT_DIR，未设置则默认 ~/Desktop/Claude
 HOME        = os.path.expanduser("~")
-SCRIPT_DIR  = os.path.join(HOME, "Desktop", "Claude")
+SCRIPT_DIR  = os.environ.get("MOMENTA_PPT_DIR") or os.path.join(HOME, "Desktop", "Claude")
+os.makedirs(SCRIPT_DIR, exist_ok=True)   # 目录不存在时自动创建
 CN_TEMPLATE = os.path.join(SCRIPT_DIR, "PPT模板.pptx")
 EN_TEMPLATE = os.path.join(SCRIPT_DIR, "Momenta PPT模板英文EN.pptx")
 
